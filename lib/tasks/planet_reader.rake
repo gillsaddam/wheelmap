@@ -55,8 +55,7 @@ end
 
 def get_new_shape_replication_files
   puts "INFO: Fetching shape changes."
-  system "ssh -p 22022 osm@176.9.63.171 \"ruby make_osc.rb -d\" 2> /dev/null >> #{SHAPE_FILE}"
-  puts "INFO: Downloaded #{File.size(SHAPE_FILE)} bytes"
+  Rake::Task['make_osc:diff'].invoke
 end
 
 def merge_replication_files

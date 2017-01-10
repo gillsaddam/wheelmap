@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 group :default do
   gem 'rails', '~> 4.1.0'
   gem 'mysql2', '~> 0.3.18'
+  gem 'pg', '~> 0.18.4'
   gem 'activerecord-import', '>= 0.4.0', :require => false
 
   gem 'rgeo', '~> 0.5.0'
@@ -75,6 +76,7 @@ group :default do
   gem 'react-rails', '~>1.4.1'
   gem 'js-routes' # Because of initializer
   gem 'dotenv-rails'
+  gem 'builder', '~> 3.2.2'
 
   gem 'sass-rails'
   gem 'sass', '~>3.3' # >= 3.3 is needed for BEM syntax
