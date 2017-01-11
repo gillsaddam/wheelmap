@@ -26,7 +26,7 @@ set :pty, true
 set :linked_files, %w{ config/database.yml config/open_street_map.yml config/metrics.yml config/librato.yml config/newrelic.yml .env config/secrets.yml}
 
 
-set :bundle_roles, [:app, :worker]
+set :bundle_roles, [:app, :worker, :importer]
 set :bundle_without, %w{ development test metrics deployment }.join(' ')
 set :bundle_jobs, 4
 set :bundle_binstubs, -> { shared_path.join('bin') }
