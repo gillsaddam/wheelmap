@@ -1,13 +1,13 @@
 require 'pg'
 require 'builder'
 
-$conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm')
 $fields = [ 'shop', 'office', 'aerialway', 'aeroway', 'amenity', 'tourism', 'historic', 'sport', 'leisure', 'public_transport' ]
 
 # encoding: UTF-8
 namespace :make_osc do
   desc 'Make OSC files.'
   task :full => :environment do
+    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm')
     FILE_HANDLE = File.new(SHAPE_FILE, "wb")
     xml = Builder::XmlMarkup.new(:target=>FILE_HANDLE, :indent => 2 )
     xml.instruct! :xml, :encoding => "UTF-8"
@@ -29,6 +29,7 @@ namespace :make_osc do
   end
 
   task :diff => :environment do
+    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm')
     FILE_HANDLE = File.new(SHAPE_FILE, "wb")
     xml = Builder::XmlMarkup.new(:target=>FILE_HANDLE, :indent => 2 )
     xml.instruct! :xml, :encoding => "UTF-8"
