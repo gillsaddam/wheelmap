@@ -7,7 +7,7 @@ $fields = [ 'shop', 'office', 'aerialway', 'aeroway', 'amenity', 'tourism', 'his
 namespace :make_osc do
   desc 'Make OSC files.'
   task :full => :environment do
-    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm')
+    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm', :host => 'osm-database')
     FILE_HANDLE = File.new(SHAPE_FILE, "wb")
     xml = Builder::XmlMarkup.new(:target=>FILE_HANDLE, :indent => 2 )
     xml.instruct! :xml, :encoding => "UTF-8"
@@ -29,7 +29,7 @@ namespace :make_osc do
   end
 
   task :diff => :environment do
-    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm')
+    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm', :host => 'osm-database')
     FILE_HANDLE = File.new(SHAPE_FILE, "wb")
     xml = Builder::XmlMarkup.new(:target=>FILE_HANDLE, :indent => 2 )
     xml.instruct! :xml, :encoding => "UTF-8"
