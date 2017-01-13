@@ -1,6 +1,7 @@
 WORKING_DIR="tmp/osmosis-working-dir"
 OSMOSIS_DIR="bin/osmosis"
 OSMOSIS_BIN="#{OSMOSIS_DIR}/bin/osmosis"
+MAKE_OSC="/var/apps/make_osc/make_osc.rb"
 VAR_DIR="tmp/var"
 CHANGE_FILE="#{VAR_DIR}/replicate-#{Time.now.to_i}.osc"
 MERGED_FILE="#{VAR_DIR}/merged.osc"
@@ -55,7 +56,7 @@ end
 
 def get_new_shape_replication_files
   puts "INFO: Fetching shape changes."
-  Rake::Task['make_osc:diff'].invoke
+  system "#{MAKE_OSC} -d >> #{SHAPE_FILE}"
 end
 
 def merge_replication_files

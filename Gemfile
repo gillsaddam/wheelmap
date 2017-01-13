@@ -75,7 +75,6 @@ group :default do
   gem 'react-rails', '~>1.4.1'
   gem 'js-routes' # Because of initializer
   gem 'dotenv-rails'
-  gem 'builder', '~> 3.2.2'
 
   gem 'sass-rails'
   gem 'sass', '~>3.3' # >= 3.3 is needed for BEM syntax
@@ -122,7 +121,6 @@ end
 
 group :production, :vagrant do
   gem 'therubyracer'
-  gem 'pg', '~> 0.18.4'
 end
 
 group :development do
