@@ -1,22 +1,22 @@
 require 'pg'
 require 'builder'
 
-$fields = [ 'shop', 'office', 'aerialway', 'aeroway', 'amenity', 'tourism', 'historic', 'sport', 'leisure', 'public_transport' ]
+fields = [ 'shop', 'office', 'aerialway', 'aeroway', 'amenity', 'tourism', 'historic', 'sport', 'leisure', 'public_transport' ]
 
 # encoding: UTF-8
 namespace :make_osc do
   desc 'Make OSC files.'
   task :full => :environment do
-    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm', :host => 'osm-database')
+    conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm', :host => 'osm-database')
     FILE_HANDLE = File.new(SHAPE_FILE, "wb")
     xml = Builder::XmlMarkup.new(:target=>FILE_HANDLE, :indent => 2 )
     xml.instruct! :xml, :encoding => "UTF-8"
     xml.osmChange do |osc|
         osc.create do |cre|
-            $conn.transaction do
-                $conn.exec('declare mycursor cursor for select osm_id, tags, ' + $fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes')
+            conn.transaction do
+                conn.exec('declare mycursor cursor for select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes')
                 begin
-                    res = $conn.exec('fetch forward 1000 from mycursor')
+                    res = conn.exec('fetch forward 1000 from mycursor')
                     break if (res.cmd_tuples() == 0)
                     res.each do |row|
                        write_node(cre, row, true) 
@@ -29,12 +29,12 @@ namespace :make_osc do
   end
 
   task :diff => :environment do
-    $conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm', :host => 'osm-database')
+    conn = PGconn.open(:dbname => 'osm', :user => 'osm', :password => 'osm', :host => 'osm-database')
     FILE_HANDLE = File.new(SHAPE_FILE, "wb")
     xml = Builder::XmlMarkup.new(:target=>FILE_HANDLE, :indent => 2 )
     xml.instruct! :xml, :encoding => "UTF-8"
     xml.osmChange do |osc|
-        $conn.transaction do
+        conn.transaction do
 
             # "delete" section in the osmChange document - select all pseudo_nodes
             # that have a delete flag set, output them, and delete them from the
@@ -42,7 +42,7 @@ namespace :make_osc do
             osc.delete do |del|
                 begin
                     # read max 1000 objects at a time
-                    res = $conn.exec('select osm_id, tags, ' + $fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where deleted=true and dirty=false limit 1000')
+                    res = conn.exec('select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where deleted=true and dirty=false limit 1000')
                     rows=0
                     ids = Array.new()
                     res.each do |row|
@@ -53,7 +53,7 @@ namespace :make_osc do
                     res.clear()
                     # delete records
                     if (rows > 0) 
-                        res = $conn.exec('delete from pseudo_nodes where osm_id in(' + ids.join(',') + ')')
+                        res = conn.exec('delete from pseudo_nodes where osm_id in(' + ids.join(',') + ')')
                         res.clear()
                     end
                 end while rows>0
@@ -64,7 +64,7 @@ namespace :make_osc do
             osc.modify do |mod|
                 begin
                     # read max 1000 objects at a time
-                    res = $conn.exec('select osm_id, tags, ' + $fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=true limit 1000')
+                    res = conn.exec('select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=true limit 1000')
                     rows=0
                     ids = Array.new()
                     res.each do |row|
@@ -75,7 +75,7 @@ namespace :make_osc do
                     res.clear()
                     # clear dirty flag
                     if (rows > 0) 
-                        res = $conn.exec('update pseudo_nodes set dirty=false,deleted=false where osm_id in(' + ids.join(',') + ')')
+                        res = conn.exec('update pseudo_nodes set dirty=false,deleted=false where osm_id in(' + ids.join(',') + ')')
                         res.clear()
                     end
                 end while rows>0
@@ -86,7 +86,7 @@ namespace :make_osc do
             osc.create do |mod|
                 begin
                     # read max 1000 objects at a time
-                    res = $conn.exec('select osm_id, tags, ' + $fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=false limit 1000')
+                    res = conn.exec('select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=false limit 1000')
                     rows=0
                     ids = Array.new()
                     res.each do |row|
@@ -97,7 +97,7 @@ namespace :make_osc do
                     res.clear()
                     # clear dirty flag
                     if (rows > 0) 
-                        res = $conn.exec('update pseudo_nodes set dirty=false where osm_id in(' + ids.join(',') + ')')
+                        res = conn.exec('update pseudo_nodes set dirty=false where osm_id in(' + ids.join(',') + ')')
                         res.clear()
                     end
                 end while rows>0
@@ -122,7 +122,7 @@ def write_node(xml_parent, row, include_tags)
           :timestamp => "2012-01-01T00:00:00Z", 
           :version => "1", 
           :lat => row["y"], :lon => row["x"]) do |node|
-            $fields.each do |key|
+            fields.each do |key|
                 next if row[key] == nil
                 node.tag(:k => key, :v => row[key])
             end
