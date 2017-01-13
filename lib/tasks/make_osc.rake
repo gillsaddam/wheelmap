@@ -1,7 +1,7 @@
 require 'pg'
 require 'builder'
 
-fields = [ 'shop', 'office', 'aerialway', 'aeroway', 'amenity', 'tourism', 'historic', 'sport', 'leisure', 'public_transport' ]
+FIELDS = [ 'shop', 'office', 'aerialway', 'aeroway', 'amenity', 'tourism', 'historic', 'sport', 'leisure', 'public_transport' ]
 
 # encoding: UTF-8
 namespace :make_osc do
@@ -14,7 +14,7 @@ namespace :make_osc do
     xml.osmChange do |osc|
         osc.create do |cre|
             conn.transaction do
-                conn.exec('declare mycursor cursor for select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes')
+                conn.exec('declare mycursor cursor for select osm_id, tags, ' + FIELDS.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes')
                 begin
                     res = conn.exec('fetch forward 1000 from mycursor')
                     break if (res.cmd_tuples() == 0)
@@ -42,7 +42,7 @@ namespace :make_osc do
             osc.delete do |del|
                 begin
                     # read max 1000 objects at a time
-                    res = conn.exec('select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where deleted=true and dirty=false limit 1000')
+                    res = conn.exec('select osm_id, tags, ' + FIELDS.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where deleted=true and dirty=false limit 1000')
                     rows=0
                     ids = Array.new()
                     res.each do |row|
@@ -64,7 +64,7 @@ namespace :make_osc do
             osc.modify do |mod|
                 begin
                     # read max 1000 objects at a time
-                    res = conn.exec('select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=true limit 1000')
+                    res = conn.exec('select osm_id, tags, ' + FIELDS.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=true limit 1000')
                     rows=0
                     ids = Array.new()
                     res.each do |row|
@@ -86,7 +86,7 @@ namespace :make_osc do
             osc.create do |mod|
                 begin
                     # read max 1000 objects at a time
-                    res = conn.exec('select osm_id, tags, ' + fields.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=false limit 1000')
+                    res = conn.exec('select osm_id, tags, ' + FIELDS.join(',') + ',st_x(way) as x,st_y(way) as y from pseudo_nodes where dirty=true and deleted=false limit 1000')
                     rows=0
                     ids = Array.new()
                     res.each do |row|
@@ -111,7 +111,7 @@ end
 
 # writes the XML representation of one node.
 def write_node(xml_parent, row, include_tags)
-    # Some nodes have no recorder lat/long and this will break any import attempts.
+    # Some nodes have no recorded lat/long and this will break any import attempts.
     # The only reasonable choice is to ignore them, unfortunately.
     return if (row["y"] == nil || row["x"] == nil)
 
@@ -122,7 +122,7 @@ def write_node(xml_parent, row, include_tags)
           :timestamp => "2012-01-01T00:00:00Z", 
           :version => "1", 
           :lat => row["y"], :lon => row["x"]) do |node|
-            fields.each do |key|
+            FIELDS.each do |key|
                 next if row[key] == nil
                 node.tag(:k => key, :v => row[key])
             end
