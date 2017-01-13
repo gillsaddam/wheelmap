@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 group :default do
   gem 'rails', '~> 4.1.0'
   gem 'mysql2', '~> 0.3.18'
-  gem 'pg', '~> 0.18.4'
   gem 'activerecord-import', '>= 0.4.0', :require => false
 
   gem 'rgeo', '~> 0.5.0'
@@ -123,6 +122,7 @@ end
 
 group :production, :vagrant do
   gem 'therubyracer'
+  gem 'pg', '~> 0.18.4'
 end
 
 group :development do
